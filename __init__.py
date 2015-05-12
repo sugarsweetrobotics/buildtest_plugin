@@ -2,7 +2,7 @@ import os, sys, subprocess, time, traceback, types, datetime
 import wasanbon
 from wasanbon.core.plugins import PluginFunction, manifest
 
-report_file_name = 'report_build.yaml'
+report_file_name = 'build_report.yaml'
 test_package_name = 'build_test_package'
 test_rtc_name = None
 exclusive_rtc_repo = ['LEDTest']
@@ -65,9 +65,7 @@ def call(cmd):
 def main():
     import yaml
     build_status_dir = {}
-    if os.path.isfile(report_file_name):
-        os.rename(report_file_name, report_file_name + wasanbon.timestampstr())
-    report_file = open(report_file_name, "w")
+    global report_file_name, test_package_name
 
     # Refresh test build package
     output = check_output(['wasanbon-admin.py', 'package', 'list'])
@@ -78,6 +76,11 @@ def main():
         pass
     else:
         call(['wasanbon-admin.py', 'package', 'create', test_package_name, '-v'])
+
+    report_file_path = os.path.join(test_package_name, report_file_name)
+    if os.path.isfile(report_file_path):
+        os.rename(report_file_path, report_file_path + wasanbon.timestampstr())
+    report_file = open(report_file_path, "w")
     
     dirname = check_output(['wasanbon-admin.py', 'package', 'directory', test_package_name])
     if type(dirname) == types.StringType:
